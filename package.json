@@ -1,0 +1,23 @@
+{
+  "name": "zadatak-chat",
+  "version": "1.0.0",
+  "description": "chat",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SergioRaskovic/zadatak-chat.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SergioRaskovic/zadatak-chat/issues"
+  },
+  "homepage": "https://github.com/SergioRaskovic/zadatak-chat#readme",
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "express": "^4.16.4"
+  }
+}
