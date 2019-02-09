@@ -1,27 +1,67 @@
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
+import _ from 'lodash';
+
 export default{
 	Query: {
 		allUsers: (parent, args, { models }) => models.User.findAll(),
-		getUser: (parent , { username }, { models }) =>
-		models.User.findOne({
-			where:{
-				username,
-			},
-		}),
+		getUser: (parent , { username }, { models , user }) =>{
+			if (user) {
+				"logged in"
+			}
+			else{
+				"not logged in user"
+			}
+			consoloe.log(user);
+			return models.User.findOne({where:{ username } })
 	},
+},
 
 	Mutation: {
-		createUser:(parent, args ,{ models }) => models.User.create(args),
+
 		updateUser:(parent, { username, newUsername }, { models }) =>
-			models.User.update({ username: newUsername },
-				{ where : {
-					username,
-				},
+			models.User.update({  username: newUsername },
+				{ where : {username },
 			}),
 		deleteUser: (parent , { id } , { models }) =>
 			models.User.destroy({
-				where: { 
-					id,
-				},
+				where: { id },
 			}),
+
+		register: async (parent, {username, email} ,{ models }) =>{
+			const user = await models.User.findOne({ where: { username } });
+			if (user) {
+				throw new Error ('username already taken');
+			}
+			if (email) {
+				throw new Error (' email already exists');
+			}
+			user.password = await bcrypt.hash(user.password, 12);
+			return models.User.create(user);
+		},
+
+		login: async (parent,  {username, password} ,{ models, SECRET }) => {
+			const user = await models.User.findOne({ where: { username } });
+			if (!user) {
+				throw new Error ('there is no user with that username');
+			}
+
+			const valid = await bcrypt.compare(password, user.password);
+			if(!valid){
+				throw new Error ('Incorrect password');
+			}
+
+			const token = jwt.sign(
+			{
+				user: _.pick(user, ['id']),
+			},
+			SECRET,
+			{
+				expiresIn: '1m',
+			},
+				);
+			return token;
+
+		},
 	},
 };
