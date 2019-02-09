@@ -9,10 +9,7 @@ import typeDefs from './schema';
 import resolvers from './resolvers';
 import models from './models/server';
 
-const schema = makeExecutableSchema({
-  typeDefs,
-  resolvers,
-});
+const schema = makeExecutableSchema({ typeDefs, resolvers, });
 
 const SECRET = 'safadgjh7834hurqwur82147fsdsfagji3435dfc';
 
@@ -42,14 +39,7 @@ app.use(
 app.use(
   '/graphql',
   bodyParser.json(),
-  graphqlExpress( req => ({ 
-  	schema, 
-  	context: 
-  	{models, 
-  	 SECRET,
-  	 user: req.user, 
-  	}, 
-  })),
+  graphqlExpress( req => ({ schema, context: {models, SECRET, user: req.user }})),
 );
 
 models.sequelize.sync().then(() => app.listen(3000));

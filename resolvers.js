@@ -21,23 +21,27 @@ export default{
 
 		updateUser:(parent, { username, newUsername }, { models }) =>
 			models.User.update({  username: newUsername },
-				{ where : {username },
-			}),
+				{ where : { username } }),
+
 		deleteUser: (parent , { id } , { models }) =>
 			models.User.destroy({
-				where: { id },
-			}),
+				where: { id } }),
 
-		register: async (parent, {username, email} ,{ models }) =>{
+		register: async (parent, {username, password, email} ,{ models }) =>{
 			const user = await models.User.findOne({ where: { username } });
 			if (user) {
 				throw new Error ('username already taken');
 			}
-			if (email) {
+			const mail = await models.User.findOne({ where: { email } });
+			if (mail) {
 				throw new Error (' email already exists');
 			}
 			user.password = await bcrypt.hash(user.password, 12);
 			return models.User.create(user);
+
+			const token = jwt.sign(
+			{ user: _.pick(user, ['id']),}, SECRET, {expiresIn: '1m' });
+			return token;
 		},
 
 		login: async (parent,  {username, password} ,{ models, SECRET }) => {
@@ -52,14 +56,7 @@ export default{
 			}
 
 			const token = jwt.sign(
-			{
-				user: _.pick(user, ['id']),
-			},
-			SECRET,
-			{
-				expiresIn: '1m',
-			},
-				);
+			{ user: _.pick(user, ['id']),}, SECRET, {expiresIn: '1m' });
 			return token;
 
 		},
