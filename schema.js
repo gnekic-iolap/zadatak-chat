@@ -12,7 +12,7 @@ export default `
 	type Mutation {
     	register(username: String!, password: String!, email: String!): User!
     	login(username: String!, password: String): String!
-    	updateUser(username: String!, newUsername: String!): [Int!]!
+    	updateUser(username: String, newUsername: String, password: String, newPassword: String): [Int!]!
     	deleteUser(id: Int!): Int!
 	}
 `;

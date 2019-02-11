@@ -5,42 +5,54 @@ import _ from 'lodash';
 export default{
 	Query: {
 		allUsers: (parent, args, { models }) => models.User.findAll(),
-		getUser: (parent , { username }, { models , user }) =>{
+		getUser: (parent , { id }, { models , user }) =>{
 			if (user) {
 				"logged in"
 			}
 			else{
 				"not logged in user"
 			}
-			consoloe.log(user);
-			return models.User.findOne({where:{ username } })
+			console.log(user);
+			return models.User.findOne({where:{ id } })
 	},
 },
 
 	Mutation: {
 
-		updateUser:(parent, { username, newUsername }, { models }) =>
-			models.User.update({  username: newUsername },
-				{ where : { username } }),
+		updateUser: async (parent, { username, newUsername, password, newPassword}, { models }) =>{
+			const user = await models.User.findOne({ where: { username } });
+			if (newUsername) {
+				if (newUsername == await models.User.findOne({ where: { username } }))
+					throw new Error ('username already taken');
+				return models.User.update({username : newUsername},
+					{ where: { username } })
+			}
+			if (newPassword) {
+				const valid = await bcrypt.compare(password, user.password);
+				if(!valid){
+					throw new Error ('Incorrect password');
+				}
+				const pass = await bcrypt.hash(newPassword, 12);
+				return models.User.update({password : pass},
+					{ where: { username } })
+			}
+		},
 
 		deleteUser: (parent , { id } , { models }) =>
 			models.User.destroy({
 				where: { id } }),
 
 		register: async (parent, {username, password, email} ,{ models }) =>{
-			const user = await models.User.findOne({ where: { username } });
-			if (user) {
+			const user = {username, password, email}
+			if (user.username == await models.User.findOne({ where: { username } }))
 				throw new Error ('username already taken');
-			}
-			const mail = await models.User.findOne({ where: { email } });
-			if (mail) {
-				throw new Error (' email already exists');
-			}
-			user.password = await bcrypt.hash(user.password, 12);
+			if (user.email == await models.User.findOne({ where: { email } }))
+				throw new Error ('email already exists');
+			user.password = await bcrypt.hash(user.password, 12)
 			return models.User.create(user);
 
 			const token = jwt.sign(
-			{ user: _.pick(user, ['id']),}, SECRET, {expiresIn: '1m' });
+			{ user: _.pick(user, ['id'])}, SECRET, {expiresIn: '1m' });
 			return token;
 		},
 
@@ -56,7 +68,7 @@ export default{
 			}
 
 			const token = jwt.sign(
-			{ user: _.pick(user, ['id']),}, SECRET, {expiresIn: '1m' });
+			{ user: _.pick(user, ['id'])}, SECRET, {expiresIn: '3s' });
 			return token;
 
 		},
