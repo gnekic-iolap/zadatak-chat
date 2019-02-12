@@ -42,18 +42,18 @@ export default{
 			models.User.destroy({
 				where: { id } }),
 
-		register: async (parent, {username, password, email} ,{ models }) =>{
-			const user = {username, password, email}
+		register: async (parent, {username, password, email, jwt} ,{ models }) =>{
+			const user = {username, password, email, jwt}
 			if (user.username == await models.User.findOne({ where: { username } }))
 				throw new Error ('username already taken');
 			if (user.email == await models.User.findOne({ where: { email } }))
 				throw new Error ('email already exists');
 			user.password = await bcrypt.hash(user.password, 12)
-			return models.User.create(user);
 
-			const token = jwt.sign(
+			user.jwt = jwt.sign(
 			{ user: _.pick(user, ['id'])}, SECRET, {expiresIn: '1m' });
-			return token;
+
+			return models.User.create(user);
 		},
 
 		login: async (parent,  {username, password} ,{ models, SECRET }) => {

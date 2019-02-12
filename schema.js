@@ -1,9 +1,13 @@
-export default `
+import { gql } from 'apollo-server-express';
+import jwt from 'jsonwebtoken';
+
+export default gql`
 	type User{
 		id: Int!
 		username: String!
 		email: String!
 		password: String!
+		jwt: String!
 	}
 	type Query{
 		allUsers: [User!]!
