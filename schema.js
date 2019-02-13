@@ -7,14 +7,13 @@ export default gql`
 		username: String!
 		email: String!
 		password: String!
-		jwt: String!
 	}
 	type Query{
-		allUsers: [User!]!
+		allUsers: [User!]
 		getUser(username: String!): User
 	}
 	type Mutation {
-    	register(username: String!, password: String!, email: String!): User!
+    	register(username: String!, password: String!, email: String!): String!
     	login(username: String!, password: String): String!
     	updateUser(username: String, newUsername: String, password: String, newPassword: String): [Int!]!
     	deleteUser(id: Int!): Int!

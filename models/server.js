@@ -1,7 +1,7 @@
 import Sequelize from 'sequelize';
 
 const sequelize = new Sequelize(
-	'test_db',
+	'test',
 	'test',
 	'1234',
 	{
