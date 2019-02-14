@@ -4,7 +4,6 @@ import { graphiqlExpress, graphqlExpress } from 'graphql-server-express';
 import { makeExecutableSchema } from 'graphql-tools';
 import cors from 'cors';
 import jwt from 'jsonwebtoken';
-import { ApolloServer } from 'apollo-server-express';
 
 import typeDefs from './schema';
 import resolvers from './resolvers';
@@ -43,14 +42,6 @@ app.use(
   }),
 );
 
-const server = new ApolloServer({
-	schema,
-	context: {
-		models,
-		SECRET,
-	},
-})
 
-server.applyMiddleware({ app, path: '/graphql'});
 
 models.sequelize.sync().then(() => app.listen(4000));
