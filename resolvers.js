@@ -4,20 +4,12 @@ import _ from 'lodash';
 
 export default{
 	Query: {
-		allUsers: (parent, args, { models }) =>  {
-			return models.User.findAll()
-		},
-		getUser: (parent , { username }, { models , user }) =>{
-			if (user) {
-				"logged in"
-			}
-			else{
-				"not logged in user"
-			}
-			console.log(user);
-			return models.User.findOne({where:{ username } })
-		},
+		allUsers: (parent, args, { models }) => models.User.findAll(),
+		getUser: (parent , { id }, { models }) =>{
+		
+			return models.User.findOne({where:{ id } })
 	},
+},
 
 	Mutation: {
 
@@ -44,24 +36,22 @@ export default{
 			models.User.destroy({
 				where: { id } }),
 
-		register: async (parent, {username, password, email} ,{ models }) =>{
-			const SECRET = 'safadgjh7834hurqwur82147fsdsfagji3435dfc';
+		register: async (parent, {username, password, email} ,{ models,SECRET}) =>{
 			const user = {username, password, email}
 			if (user.username == await models.User.findOne({ where: { username } }))
 				throw new Error ('username already taken');
 			if (user.email == await models.User.findOne({ where: { email } }))
 				throw new Error ('email already exists');
 			user.password = await bcrypt.hash(user.password, 12)
+			const user2 = await models.User.create(user);
 
-			user.jwt = jwt.sign(
-			{ user: _.pick(user, ['id'])}, SECRET, {expiresIn: '1m' });
+		    const token = jwt.sign(
+			{ user: _.pick(user2, ['id'])}, SECRET, {expiresIn: '1m' });
 
-			models.User.create({username : user.username}, {password : user.password}, {email : user.email})
-
-			return user.jwt
+			return token
 		},
 
-		login: async (parent,  {username, password} ,{ models, SECRET }) => {
+		login: async (parent, {username, password} ,{ models, SECRET }) => {
 			const user = await models.User.findOne({ where: { username } });
 			if (!user) {
 				throw new Error ('there is no user with that username');
@@ -74,6 +64,7 @@ export default{
 
 			const token = jwt.sign(
 			{ user: _.pick(user, ['id'])}, SECRET, {expiresIn: '3s' });
+
 			return token;
 
 		},
