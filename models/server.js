@@ -1,12 +1,12 @@
 import Sequelize from 'sequelize';
 
 const sequelize = new Sequelize(
-	'test_db',
-	'test',
-	'1234',
+	process.env.DB_NAME,
+	process.env.DB_USER,
+	process.env.DB_PASS,
 	{
-		host: 'localhost',
-		dialect : 'mysql'
+		host: process.env.DB_HOST,
+		dialect : process.env.DB_DIALECT,
 	},
 );
 

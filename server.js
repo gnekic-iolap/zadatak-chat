@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 import express from 'express';
 import bodyParser from 'body-parser';
 import { graphiqlExpress, graphqlExpress } from 'graphql-server-express';
@@ -11,7 +13,7 @@ import models from './models/server';
 
 const schema = makeExecutableSchema({ typeDefs, resolvers, });
 
-const SECRET = 'safadgjh7834hurqwur82147fsdsfagji3435dfc';
+const SECRET = process.env.JWT_SECRET;
 
 const app = express();
 
@@ -42,6 +44,5 @@ app.use(
   }),
 );
 
-
-
-models.sequelize.sync().then(() => app.listen(4000));
+const serverPort = (process.env.SERVER_PORT) ? parseInt(process.env.SERVER_PORT, 10) : 4000;
+models.sequelize.sync().then(() => app.listen(serverPort));
